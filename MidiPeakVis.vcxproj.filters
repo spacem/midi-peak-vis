@@ -35,6 +35,9 @@
     <ClCompile Include="MidiPeakVis.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MidiFlasher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="MidiPeakVis.rc">
@@ -42,9 +45,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="small.ico">
-      <Filter>Resource Files</Filter>
-    </Image>
     <Image Include="MidiPeakVis.ico">
       <Filter>Resource Files</Filter>
     </Image>
