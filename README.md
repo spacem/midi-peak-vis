@@ -1,6 +1,8 @@
+# ![logo](https://i.imgur.com/mRklRsg.png) MidiPeakVis
+
 This is a simple peak visualiser that outputs to my Novation LaunchKey 49 midi keyboard pad lights.  It listens to the default audio device so all windows sounds will light up the midi keyboard.
 
-![Alt Text](https://media.giphy.com/media/JsDf0JVW5bi6dA3zWx/giphy.gif)
+![GIF Demo](https://media.giphy.com/media/JsDf0JVW5bi6dA3zWx/giphy.gif)
 
 Video demo here: https://youtu.be/7T36cBQyrSI
 
