@@ -18,7 +18,7 @@ Limitations:
 * Although both rows of pads light up you only view a single combined channel
 * Only tested on one midi keyboard (my launchkey 49)
 
-This software sends standard 'note on' midi signals to the keyboard using the mmsystem windows api library. This process is ![documented by novation](
+This software sends standard 'note on' midi signals to the keyboard using the mmsystem windows api library. This process is [documented by novation](
 https://support.novationmusic.com/hc/en-gb/articles/206857849-How-do-I-create-LED-feedback-on-the-Launchkey-MkII-) so should be safe however I take no responisbility for any damage caused by the software.
 
 I am not affiliated with novation in any way.
