@@ -24,9 +24,19 @@ public:
 		midiOutClose(device);
 	}
 
+	void Debug(const WCHAR* szFormat, ...)
+	{
+		WCHAR szBuff[1024];
+		va_list arg;
+		va_start(arg, szFormat);
+		_vsnwprintf_s(szBuff, sizeof(szBuff), szFormat, arg);
+		va_end(arg);
+
+		OutputDebugString(szBuff);
+	}
+
 	void SendMidi(float peak) {
 
-		this->turnOnInControl();
 		if (peak == 0)
 		{
 			this->offFrom(0);
@@ -70,11 +80,12 @@ public:
 	}
 
 private:
-	int noteStates[256];
+	int noteStates[256] = {};
 	HMIDIOUT device;
 
 	void sendMidiMessage(unsigned char note, int colour)
 	{
+		// dont send a signal if it is already set correctly
 		if (this->noteStates[note] == colour)
 		{
 			return;

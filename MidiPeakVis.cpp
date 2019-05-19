@@ -13,24 +13,13 @@ static BOOL CALLBACK DlgProc(HWND, UINT, WPARAM, LPARAM);
 
 // Timer ID and period (in milliseconds)
 #define ID_TIMER  1
-#define TIMER_PERIOD  90
+#define TIMER_PERIOD  80
 
 #define EXIT_ON_ERROR(hr)  \
               if (FAILED(hr)) { goto Exit; }
 #define SAFE_RELEASE(punk)  \
               if ((punk) != NULL)  \
                 { (punk)->Release(); (punk) = NULL; }
-
-void Debug(const WCHAR* szFormat, ...)
-{
-	WCHAR szBuff[1024];
-	va_list arg;
-	va_start(arg, szFormat);
-	_vsnwprintf_s(szBuff, sizeof(szBuff), szFormat, arg);
-	va_end(arg);
-
-	OutputDebugString(szBuff);
-}
 
 MidiFlasher* midiFlasher;
 
