@@ -75,10 +75,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     UNREFERENCED_PARAMETER(hPrevInstance);
     UNREFERENCED_PARAMETER(lpCmdLine);
 
-    // TODO: Place code here.
-	midiFlasher = new MidiFlasher();
 	WinMainSample(hInstance, hPrevInstance);
-	delete midiFlasher;
+	if (midiFlasher != NULL)
+	{
+		delete midiFlasher;
+	}
 	return TRUE;
 }
 
@@ -91,43 +92,80 @@ BOOL CALLBACK DlgProc(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	static float peak = 0;
 	HRESULT hr;
 	static HMIDIOUT* device = NULL;
-
-	switch (message)
+	int numDevices = 0;
+	int selectedIndex = 0;
+	try
 	{
-	case WM_INITDIALOG:
-		pMeterInfo = (IAudioMeterInformation*)lParam;
-		SetTimer(hDlg, ID_TIMER, TIMER_PERIOD, NULL);
-		return TRUE;
-
-	case WM_COMMAND:
-		switch ((int)LOWORD(wParam))
+		switch (message)
 		{
-		case IDCANCEL:
-			KillTimer(hDlg, ID_TIMER);
-			EndDialog(hDlg, TRUE);
-			return TRUE;
-		}
-		break;
-
-	case WM_TIMER:
-		switch ((int)wParam)
-		{
-		case ID_TIMER:
-			// Update the peak meter in the dialog box.
-			hr = pMeterInfo->GetPeakValue(&peak);
-			if (FAILED(hr))
+		case WM_INITDIALOG:
+			numDevices = midiOutGetNumDevs();
+			if (numDevices == 0)
 			{
-				MessageBox(hDlg, TEXT("The program will exit."),
-					TEXT("Fatal error"), MB_OK);
+				throw L"No midi output devices found";
+			}
+
+			for (int i = 0; i < numDevices; ++i) {
+				MIDIOUTCAPS moc;
+				if (!midiOutGetDevCaps(i, &moc, sizeof(MIDIOUTCAPS)))
+				{
+					SendDlgItemMessage(hDlg, IDC_OUTPUT_DEVICE, CB_ADDSTRING, 0, (LPARAM)moc.szPname);
+				}
+			}
+			SendDlgItemMessage(hDlg, IDC_OUTPUT_DEVICE, CB_SETCURSEL, numDevices - 1, 0);
+
+			midiFlasher = new MidiFlasher(numDevices - 1);
+			pMeterInfo = (IAudioMeterInformation*)lParam;
+			SetTimer(hDlg, ID_TIMER, TIMER_PERIOD, NULL);
+			return TRUE;
+
+		case WM_COMMAND:
+			switch ((int)LOWORD(wParam))
+			{
+			case IDCANCEL:
 				KillTimer(hDlg, ID_TIMER);
 				EndDialog(hDlg, TRUE);
 				return TRUE;
-			}
 
-			midiFlasher->SendMidi(peak);
-			return TRUE;
+			case IDC_OUTPUT_DEVICE:
+				switch (HIWORD(wParam))
+				{
+					case CBN_SELCHANGE:
+						selectedIndex = SendDlgItemMessage(hDlg, IDC_OUTPUT_DEVICE, CB_GETCURSEL, 0, 0);;
+						delete midiFlasher;
+						midiFlasher = new MidiFlasher(selectedIndex);
+						return TRUE;
+				}
+			}
+			break;
+
+		case WM_TIMER:
+			switch ((int)wParam)
+			{
+			case ID_TIMER:
+				if (midiFlasher != NULL)
+				{
+					// Update the peak meter in the dialog box.
+					hr = pMeterInfo->GetPeakValue(&peak);
+					if (FAILED(hr))
+					{
+						throw L"Cannot get mixer peak value";
+						return TRUE;
+					}
+
+					midiFlasher->SendMidi(peak);
+				}
+				return TRUE;
+			}
+			break;
 		}
-		break;
+		return FALSE;
 	}
-	return FALSE;
+	catch (const LPCWSTR msg)
+	{
+		KillTimer(hDlg, ID_TIMER);
+		EndDialog(hDlg, TRUE);
+		MessageBox(hDlg, msg, L"", 0);
+		return FALSE;
+	}
 }

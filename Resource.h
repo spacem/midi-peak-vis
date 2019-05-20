@@ -1,3 +1,4 @@
 #define IDC_STATIC_MINVOL      1001
 #define IDC_STATIC_MAXVOL      1002
 #define IDC_PEAK_METER         1003
+#define IDC_OUTPUT_DEVICE      1004

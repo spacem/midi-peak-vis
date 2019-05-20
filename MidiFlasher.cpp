@@ -3,25 +3,32 @@
 class MidiFlasher
 {
 public:
-	MidiFlasher()
+	MidiFlasher(int midiport)
 	{
-		// variable which is both an integer and an array of characters:
-		int midiport = 2;       // select which MIDI output port to open
-		int flag;           // monitor the status of returning functions
-
-		// Open the MIDI output port
-		flag = midiOutOpen(&(this->device), midiport, 0, 0, CALLBACK_NULL);
-		if (flag != MMSYSERR_NOERROR) {
-			throw "Error opening MIDI Output.";
+		int numDevices = midiOutGetNumDevs();
+		if (midiport >= numDevices)
+		{
+			throw L"Invalid device number.";
 		}
-		this->turnOnInControl();
+
+		int flag = midiOutOpen(&(this->device), midiport, 0, 0, CALLBACK_NULL);
+		if (flag != MMSYSERR_NOERROR) {
+			throw L"Error opening MIDI Output.";
+		}
 	}
 
 	~MidiFlasher()
 	{
-		this->offFrom(0);
-		midiOutReset(device);
-		midiOutClose(device);
+		try
+		{
+			this->offFrom(0);
+			midiOutReset(device);
+			midiOutClose(device);
+		}
+		catch (const LPCWSTR msg)
+		{
+			// ignore
+		}
 	}
 
 	void Debug(const WCHAR* szFormat, ...)
@@ -100,25 +107,11 @@ private:
 
 		int flag = midiOutShortMsg(this->device, message.word);
 		if (flag != MMSYSERR_NOERROR) {
-			throw "Warning: MIDI Output is not open.";
+			throw L"MIDI Output is not open.";
 		}
 	}
 
-	void turnOnInControl()
-	{
-		union { unsigned long word; unsigned char data[4]; } message;
-		message.data[0] = 0x90;  // MIDI note-on message (requires to data bytes)
-		message.data[1] = 12;    // MIDI note-on message: Key number (60 = middle C)
-		message.data[2] = 127;   // MIDI note-on message: Key velocity (100 = loud)
-		message.data[3] = 0;     // Unused parameter
-
-		int flag = midiOutShortMsg(this->device, message.word);
-		if (flag != MMSYSERR_NOERROR) {
-			throw "Warning: MIDI Output is not open.";
-		}
-	}
-
-	int getNoteNumber(int note)
+	int getNoteColour(int note)
 	{
 		switch (note) {
 		case 0:
@@ -145,8 +138,8 @@ private:
 	void offFrom(int number)
 	{
 		for (int i = 0; i < number; ++i) {
-			this->sendMidiMessage(96 + i, this->getNoteNumber(i));
-			this->sendMidiMessage(112 + i, this->getNoteNumber(i));
+			this->sendMidiMessage(96 + i, this->getNoteColour(i));
+			this->sendMidiMessage(112 + i, this->getNoteColour(i));
 		}
 		for (int i = number; i < 9; ++i) {
 			this->sendMidiMessage(96 + i, 0);
