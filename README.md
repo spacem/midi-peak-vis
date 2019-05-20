@@ -13,7 +13,6 @@ Video demo here: https://youtu.be/7T36cBQyrSI
 This project needs a little polish. If you want to use it and it doesnt work feel free to add an issue to github.
 
 Limitations:
-* Only outputs to midi port index 2 - might add a port selector if there is interest
 * Only listens to default device (ie. no asio support)
 * Although both rows of pads light up you only view a single combined channel
 * Only tested on one midi keyboard (my launchkey 49)
