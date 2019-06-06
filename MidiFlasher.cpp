@@ -15,6 +15,7 @@ public:
 		if (flag != MMSYSERR_NOERROR) {
 			throw L"Error opening MIDI Output.";
 		}
+		this->turnOnInControl();
 	}
 
 	~MidiFlasher()
@@ -43,7 +44,6 @@ public:
 	}
 
 	void SendMidi(float peak) {
-
 		if (peak == 0)
 		{
 			this->offFrom(0);
@@ -109,6 +109,11 @@ private:
 		if (flag != MMSYSERR_NOERROR) {
 			throw L"MIDI Output is not open.";
 		}
+	}
+
+	void turnOnInControl()
+	{
+		this->sendMidiMessage(12, 127);
 	}
 
 	int getNoteColour(int note)
